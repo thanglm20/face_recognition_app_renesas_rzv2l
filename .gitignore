@@ -1,0 +1,6 @@
+build/
+models/*/
+*.o
+*.so
+face_recognition_drpai_tvm_ws
+

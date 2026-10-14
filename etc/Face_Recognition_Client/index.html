@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DRP-AI Face Recognition</title>
+  <link rel="stylesheet" href="face_recognition.css">
+</head>
+<body>
+  <main>
+    <h1>Face Recognition</h1>
+    <p class="description">USB camera stream and face recognition on Renesas DRP-AI</p>
+    <form id="connection-form">
+      <label for="endpoint">Device WebSocket</label>
+      <input id="endpoint" value="ws://192.168.1.11:3000/ws/" spellcheck="false">
+      <button type="submit">Connect</button>
+      <span id="status" data-state="disconnected">Disconnected</span>
+    </form>
+    <section class="video-grid">
+      <div>
+        <h2>Camera</h2>
+        <canvas id="camera" width="640" height="480"></canvas>
+      </div>
+      <div>
+        <h2>Face Recognition result</h2>
+        <canvas id="result" width="640" height="480"></canvas>
+      </div>
+    </section>
+    <section class="details">
+      <div><strong>Faces</strong><output id="faces">0</output></div>
+      <div><strong>Inference</strong><output id="timing">-</output></div>
+      <div><strong>Message</strong><output id="message">-</output></div>
+    </section>
+  </main>
+  <script src="face_recognition.js"></script>
+</body>
+</html>
