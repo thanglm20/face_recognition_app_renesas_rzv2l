@@ -100,6 +100,11 @@ void RecognizeProc::switch_model(std::string model)
         /* Run face detection and then run emotion estimation */
         p_recog_base->initialize(new TVM_UltraFace_DRPAI(), new TVM_EmotionFP_DRPAI());
     }
+    else if ("TVM_DRPAI_FACERECOGNITION" == model)
+    {
+        /* UltraFace detection, then MobileFaceNet embedding + cosine matching */
+        p_recog_base->initialize(new TVM_UltraFace_DRPAI(), new TVM_MobileFaceNet_DRPAI());
+    }
     else if ("TVM_DRPAI_DEEPLABV3" == model)
     {
         /* Run semantic segmentation */

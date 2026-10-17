@@ -59,13 +59,15 @@ public:
             CEREAL_NVP(predict),
             CEREAL_NVP(drp_time),
             CEREAL_NVP(post_time),
-            CEREAL_NVP(pre_time));
+            CEREAL_NVP(pre_time),
+            CEREAL_NVP(message));
     }
 
 
 
 public:
     vector<bbox_t> predict;
+    std::string message;
 };
 
 #endif

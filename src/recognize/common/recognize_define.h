@@ -26,13 +26,8 @@
 #ifndef RECOGNIE_DEFINE_H
 #define RECOGNIE_DEFINE_H
 
-#define JPEG_QUALUTY (50)           /* JPEG 0 - 100 */
-#define INFERENE_ON                 /* Enable inference.*/
-#define SEND_INFERENCE_RESULT_ON    /* Enable send inference image*/
-#define SEND_CAMERA_ON              /* Enable send through image */
-// #define COUT_INFERENCE_RESULT_ON    /* Enable print infference result to console */
-#define MODEL_VGA                   /* ON=VGA Capture & Inference. OFF=FHD Capture & Inference */
-//#define SEQUENCTCIAL                /* Enable sync capture and inference*/
+/* Feature switches (JPEG_QUALUTY, INFERENE_ON, MODEL_VGA, ...) live in app_config.h */
+#include "../../app_config.h"
 
 /*Define Mode*/
 #define MODE_TVM_UNKNOWN             (0b00000000)
@@ -61,5 +56,6 @@
 #define MODE_TVM_EMOTIONFP_DRPAI    (0b10010010)
 #define MODE_TVM_EMOTIONFP_CPU      (0b10010011)
 #define MODE_TVM_DEEPLABV3_DRPAI    (0b10010100)
+#define MODE_TVM_MOBILEFACENET_DRPAI (0b10010110)
 
 #endif // !RECOGNIE_DEFINE_H

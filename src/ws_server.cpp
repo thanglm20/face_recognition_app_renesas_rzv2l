@@ -148,6 +148,7 @@ void WebsocketServer::message_worker(WebsocketServer* obj)
  */
 bool WebsocketServer::send_command(std::string command)
 {
+    std::lock_guard<std::mutex> lock(_send_mutex);
     if (_client.sfd_ref() <= 0) return false;
     return _client.send_msg_txt(command) > 0;
 }

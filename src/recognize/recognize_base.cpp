@@ -56,9 +56,11 @@
 #include "../command/cpu_usage.h"
 #include "../include/lwsock.hpp"
 #include "common/recognize_define.h"
+#include "../app_config.h"
 #include <builtin_fp16.h>
 #include <fstream>
 #include <sys/time.h>
+#include <algorithm>
 
 /*****************************************
 * Function Name : get_drpai_start_addr
@@ -583,7 +585,7 @@ void* RecognizeBase::tvm_inference_thread(void* arg)
         /**DRP-AI TVM[*1]::Start Inference*/
         errno = 0;
         inf_cnt++;
-        printf("Inference ----------- No. %d\n", (inf_cnt + 1));
+        // printf("Inference ----------- No. %d\n", (inf_cnt + 1));
         /*Gets inference starting time*/
         me->get_time(start_time);
         /*DRP-AI TVM[*1]::Run inference*/
@@ -592,7 +594,7 @@ void* RecognizeBase::tvm_inference_thread(void* arg)
         me->get_time(end_time);
         /*Inference End Time */
         ai_time = (float)((me->timedifference_msec(start_time, end_time)));
-        print_measure_log("AI Inference Time", ai_time, "ms");
+        // print_measure_log("AI Inference Time", ai_time, "ms");
         /*Process to read the DRP-AI output data.*/
         /* DRP-AI TVM[*1]::Get the number of output of the target model. For DeepPose, 1 output. */
         auto output_num = runtime.GetNumOutput();
@@ -666,19 +668,46 @@ void* RecognizeBase::tvm_inference_thread(void* arg)
             int32_t y = 0;
             int32_t w = 0;
             int32_t h = 0;
-            /*Get face detection result*/
-            std::vector<detection> res = me->_model->detected_data;
-            me->_model_2->detected_data.clear();
+            /* Keep all detections for display, but recognize only one face in the center guide. */
+            std::vector<detection> detections;
+            for (const detection& detected : me->_model->detected_data)
+            {
+                if (detected.prob > 0)
+                {
+                    detections.push_back(detected);
+                }
+            }
+
+            std::vector<size_t> centered_faces;
+            for (size_t i = 0; i < detections.size(); i++)
+            {
+                const Box& box = detections[i].bbox;
+                const float center_x = box.x + box.w / 2.0f;
+                const float center_y = box.y + box.h / 2.0f;
+                if (center_x >= me->cap_w * app_config::GUIDE_LEFT &&
+                    center_x <= me->cap_w * app_config::GUIDE_RIGHT &&
+                    center_y >= me->cap_h * app_config::GUIDE_TOP &&
+                    center_y <= me->cap_h * app_config::GUIDE_BOTTOM)
+                {
+                    centered_faces.push_back(i);
+                }
+            }
+
+            me->_model_2->detected_data = detections;
+            std::vector<detection> res;
+            if (centered_faces.size() == 1)
+            {
+                const size_t selected = centered_faces.front();
+                std::rotate(me->_model_2->detected_data.begin(),
+                    me->_model_2->detected_data.begin() + selected,
+                    me->_model_2->detected_data.begin() + selected + 1);
+                res.push_back(me->_model_2->detected_data.front());
+            }
 
             /*Detection loop*/
             for (detection detected : res)
             {
-                if (0 == detected.prob) continue;
-                
                 me->get_time(start_time);
-
-                /*Copy the detected data to second model object*/
-                me->_model_2->detected_data.push_back(detected);
 
                 x = (int32_t) detected.bbox.x;
                 y = (int32_t) detected.bbox.y;
@@ -835,19 +864,19 @@ void* RecognizeBase::framerate_thread(void* arg)
         /* AI FPS */
         int32_t count = me->_ai_frame_count.load();
         me->_ai_frame_count.store(0);
-        print_measure_log("------------------------------>AI FPS", count, "fps");
+        // print_measure_log("------------------------------>AI FPS", count, "fps");
         /*Camerar FPS*/
         int32_t cam_count = me->_camera_frame_count.load();
         me->_camera_frame_count.store(0);
-        print_measure_log("------------------------------>Camera FPS", cam_count, "fps");
+        // print_measure_log("------------------------------>Camera FPS", cam_count, "fps");
 
         /* CPU usage*/
         string cpuUsage = me->_analyzer.get_cpu_usage(2);
-        print_measure_log("CPU Usage", cpuUsage);
+        // print_measure_log("CPU Usage", cpuUsage);
 
         /* Memory usage*/
         float memoryUsage = me->_analyzer.get_memory_usage();
-        print_measure_log("Memory Usage", memoryUsage, "%");
+        // print_measure_log("Memory Usage", memoryUsage, "%");
 
         /* send CPU usage and Memory usage*/
         notify.cpu_usage = cpuUsage;

@@ -39,13 +39,14 @@
 #include "PreRuntime.h"
 #include "../command/object_detection.h"
 #include "../common/recognize_define.h"
+#include "../../app_config.h"
 
 class TVM_UltraFace_DRPAI : public IRecognizeModel
 {
 private:
     constexpr static string_view TVM_MODEL_DIR = "ultraface_onnx";
-    constexpr static  int32_t TVM_DRPAI_IN_WIDTH = (640);
-    constexpr static  int32_t TVM_DRPAI_IN_HEIGHT = (480);
+    constexpr static  int32_t TVM_DRPAI_IN_WIDTH = (app_config::CAMERA_WIDTH);
+    constexpr static  int32_t TVM_DRPAI_IN_HEIGHT = (app_config::CAMERA_HEIGHT);
 
     /*UltraFace*/
     constexpr static string_view MODEL_NAME = "DRP-AI TVM UltraFace (DRP-AI)";
@@ -60,8 +61,8 @@ private:
     constexpr static int32_t TVM_MODEL_OUT_NUM_BOX = (4);
     constexpr static int32_t TVM_MODEL_OUT_SIZE = (TVM_MODEL_OUT_NUM * TVM_MODEL_OUT_NUM_SCORE + TVM_MODEL_OUT_NUM * TVM_MODEL_OUT_NUM_BOX)* sizeof(float);
 
-    constexpr static float ULTRAFACE_TH_SCORE   = (0.7);//from ONNX Model Zoo
-    constexpr static float ULTRAFACE_TH_NMS     = (0.5);//from ONNX Model Zoo
+    constexpr static float ULTRAFACE_TH_SCORE   = (app_config::FACE_DETECT_SCORE_TH);
+    constexpr static float ULTRAFACE_TH_NMS     = (app_config::FACE_DETECT_NMS_TH);
 public:
     TVM_UltraFace_DRPAI();
     virtual int32_t inf_pre_process

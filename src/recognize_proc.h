@@ -40,6 +40,7 @@
 #include "recognize/googlenet/tvm_drpai_googlenet.h"
 #include "recognize/emotionfp/tvm_drpai_emotionfp.h"
 #include "recognize/deeplabv3/tvm_drpai_deeplabv3.h"
+#include "recognize/mobilefacenet/tvm_drpai_mobilefacenet.h"
 
 using namespace std;
 class RecognizeProc

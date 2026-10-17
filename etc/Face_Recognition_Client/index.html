@@ -9,23 +9,26 @@
 <body>
   <main>
     <h1>Face Recognition</h1>
-    <p class="description">USB camera stream and face recognition on Renesas DRP-AI</p>
+    <p class="description">USB camera stream and face recognition on Renesas DRP-AI. Keep one face inside the center frame.</p>
     <form id="connection-form">
       <label for="endpoint">Device WebSocket</label>
-      <input id="endpoint" value="ws://192.168.1.11:3000/ws/" spellcheck="false">
+      <input id="endpoint" value="ws://192.168.100.60:3000/ws/" spellcheck="false">
       <button type="submit">Connect</button>
       <span id="status" data-state="disconnected">Disconnected</span>
     </form>
     <section class="video-grid">
       <div>
-        <h2>Camera</h2>
-        <canvas id="camera" width="640" height="480"></canvas>
-      </div>
-      <div>
-        <h2>Face Recognition result</h2>
-        <canvas id="result" width="640" height="480"></canvas>
+        <h2>Camera / Face Recognition</h2>
+        <canvas id="display" width="640" height="480"></canvas>
       </div>
     </section>
+    <form id="enroll-form" onsubmit="return false">
+      <label for="person-name">Person</label>
+      <input id="person-name" placeholder="Name" spellcheck="false">
+      <button type="button" id="enroll-btn">Enroll face in center frame</button>
+      <button type="button" id="delete-btn">Delete person</button>
+      <button type="button" id="clear-btn">Clear all</button>
+    </form>
     <section class="details">
       <div><strong>Faces</strong><output id="faces">0</output></div>
       <div><strong>Inference</strong><output id="timing">-</output></div>

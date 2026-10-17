@@ -29,14 +29,17 @@
 #include "ws_server.h"
 #include "recognize_proc.h"
 #include "command/change_model.h"
+#include "command/face_enroll.h"
+#include "command/app_message.h"
 #include "cereal/cereal.hpp"
+#include <cctype>
 
 static RecognizeProc* g_rc;
 /*
  * Bind to every board interface by default. The PC must still connect to
  * the board's actual IP address.
  */
-static const char* DEFAULT_BOARD_IP = "0.0.0.0";
+static const char* DEFAULT_BOARD_IP = "192.168.100.60";
 
 /**
  * @brief command_rsv
@@ -47,6 +50,40 @@ static const char* DEFAULT_BOARD_IP = "0.0.0.0";
 void command_rsv(WebsocketServer* snd, string obj)
 {
     std::cout << "command received ! " << obj << std::endl;
+
+    FaceEnroll enr;
+    if (enr.Deserizlie(obj) && enr.command_name == "face_enroll")
+    {
+        /* Gallery file stores whitespace separated fields */
+        std::string name = enr.name;
+        for (char& c : name) if (isspace((unsigned char)c)) c = '_';
+        FaceGallery& gal = FaceGallery::instance();
+        AppMessage response;
+        if (enr.action == "enroll" && !name.empty())
+        {
+            gal.request_enroll(name);
+            response.message = "Enrollment queued for " + name +
+                ". Place exactly one face inside the center frame.";
+        }
+        else if (enr.action == "delete" && !name.empty())
+        {
+            response.message = gal.remove(name)
+                ? "Deleted " + name
+                : "Could not delete " + name + " (not found or gallery file is not writable)";
+        }
+        else if (enr.action == "clear")
+        {
+            response.message = gal.clear()
+                ? "Face gallery cleared"
+                : "Could not clear the gallery file";
+        }
+        else
+        {
+            response.message = "Invalid face enrollment command";
+        }
+        snd->send_command(response.CreateRequest());
+        return;
+    }
 
     ChangeModel chg;
     if (chg.Deserizlie(obj) == false) {
@@ -76,7 +113,7 @@ void on_disconnect(WebsocketServer* snd)
 int32_t main(int32_t argc, char* argv[])
 {
     printf("################################################\n");
-    printf("#    RZ/V DRP-AI TVM Sample Application     #\n");
+    printf("#    RZ/V2L Face Recognition Application     #\n");
     printf("################################################\n");
 
 
@@ -101,9 +138,10 @@ int32_t main(int32_t argc, char* argv[])
 #ifdef FACE_RECOGNITION
     /*
      * The face-recognition target intentionally has no model selector:
-     * UltraFace is initialized as soon as the browser connects.
+     * UltraFace detection + MobileFaceNet recognition start as soon as the
+     * browser connects.
      */
-    g_rc->switch_model("TVM_DRPAI_ULTRAFACE");
+    g_rc->switch_model("TVM_DRPAI_FACERECOGNITION");
 #endif
     g_rc->start_recognize();
 

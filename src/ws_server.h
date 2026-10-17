@@ -30,6 +30,7 @@
 ******************************************/
 #include "../include/lwsock.hpp"
 #include "includes.h"
+#include <mutex>
 
 using namespace std;
 using namespace lwsock;
@@ -63,6 +64,7 @@ private:
 
     WebSocket _server;
     WebSocket _client;
+    std::mutex _send_mutex;
 };
 
 #endif // !_WS_SERVER_H_
